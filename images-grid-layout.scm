@@ -1,4 +1,4 @@
-; IGLO Images Grid LayOut  
+; IGLO Images Grid LayOut  1.5
 ; Easy way to print multiple photos on single paper
 ; 
 ; Copyright (C) 2005-2015 Kamil Svoboda <email: kamil (dot) svoboda (at sign) centrum (dot) cz
@@ -101,12 +101,12 @@
 (define (script-fu-images-grid-layout size paperWidth paperHeight paperMargin imagePlaceWidth imagePlaceHeight space units DPI duplicate row_nb col_nb fill_empty rotate chg_ratio interpolation superSample flatten fg_color bg_color)
 	(let*
 		(	;global variables
-		(canvasWidth 0) ;width of drawing area
-		(canvasHeight 0) ;height of drawing area
+		(canvasWidth 0) 			;width of drawing area
+		(canvasHeight 0) 			;height of drawing area
 		(img (gimp-image-list))		;list of opened images
 		(img_nb (car img))   		;how many images are open
 		(images (cadr img))   		;the array of images
-		(paper 0)						;new image
+		(paper 0)					;new image
 		(bg 0)						;background image
 		)		
 		;(gimp-message (string-append "img_idx: "(number->string (- (/ img_nb duplicate) 1))))	; example of message construction (for development)	
@@ -160,14 +160,10 @@
 		(set! canvasHeight (- paperHeight (* paperMargin 2)))
 		
 		;debug print - script have to be called from console
-		(display "Paper with: ")
-		(print paperWidth)
-		(display "Paper height: ")
-		(print paperHeight)
-		(display "Canvas width: ")
-		(print canvasWidth)
-		(display "Canvas height: ")
-		(print canvasHeight)
+		(print (string-append "Paper width: " (number->string paperWidth)))
+		(print (string-append "Paper height: " (number->string paperHeight)))
+		(print (string-append "Canvas width: " (number->string canvasWidth)))
+		(print (string-append "Canvas height: " (number->string canvasHeight)))
 		
 		;CALCULATING COUNT OF ROWS AND COLUMNS
 		(if (and (not(= imagePlaceWidth 0)) (= imagePlaceHeight 0)) ;if user specify only image place WIDTH
@@ -294,24 +290,24 @@
 		(gimp-context-set-background bg_color)		;set backgroud by user selection	  	
 		
 		(set! paper (car (gimp-image-new paperWidth paperHeight RGB)))	; create new image
-		(gimp-image-set-resolution paper DPI DPI) ;set DPI
-		(gimp-image-clean-all paper)			;clean new image	
+		(gimp-image-set-resolution paper DPI DPI) 	;set DPI
+		(gimp-image-clean-all paper)				;clean new image
 		
 		(set! bg (car (gimp-layer-new paper paperWidth paperHeight RGB-IMAGE "Background" 100 NORMAL-MODE))) ;create background layer
 		(gimp-image-add-layer paper bg 0)  		;add background layer to the image
-		(gimp-edit-fill bg BACKGROUND-FILL)		
+		(gimp-edit-fill bg BACKGROUND-FILL)
 		;(gimp-display-new paper)
 		(let(	  	
-			(img_idx 0)             ;index of image in Gimp image list
-			(duplicating_count 0)		;counter for duplicating images
+			(img_idx 0)				;set index of image in Gimp image list to number of images
+			(duplicating_count 0)	;counter for duplicating images
 			(row_cur 0)				;current row on the paper	
 			(col_cur 0)				;current column on the paper
-			(this_img 0)				;opened image
+			(this_img 0)			;opened image
 			)
-					
-			(while (< row_cur row_nb)       ;iterate rows
+
+			(while (< row_cur row_nb)		;iterate rows
 				(set! col_cur 0)			;current column on the paper
-				(while (< col_cur col_nb)		;iterate columns			
+				(while (< col_cur col_nb)	;iterate columns
 					(let*(
 						(x_offset (+ (* col_cur imagePlaceWidth) paperMargin))	;offset of imagePlace layer in the image (paper)
 						(y_offset (+ (* row_cur imagePlaceHeight) paperMargin))
@@ -319,14 +315,8 @@
 						)	
 		    			
 						;debug print (only in console call)
-						;(display "Col: ")
-						;(print col_cur)
-						;(display "Row: ")
-						;(print row_cur)
-						;(display "x_offset: ")
-						;(print x_offset)
-						;(display "y_offset: ")
-						;(print y_offset)
+						(print (string-append "Column: " (number->string col_cur)))
+						(print (string-append "Row: " (number->string row_cur)))						
 
 						(gimp-image-add-layer paper layer (+ (* img_idx duplicate) duplicating_count))  	;add new layer - "(img_idx * duplicate) + duplicating_count" is index of current image cell
 			    		(gimp-edit-clear layer)				;clear new layer
@@ -338,7 +328,11 @@
 									(set! img_idx (- (/ img_nb duplicate) 1))
 								)									
 				  				(set! this_img (aref images img_idx)) 	;get opened image
-				  				(gimp-drawable-set-name layer (car (gimp-image-get-name this_img))) ;set layer name same as image name				  
+				  				(gimp-drawable-set-name layer (car (gimp-image-get-name this_img))) ;set layer name same as image name								
+								
+								(display (string-append (string-append "Image (" (number->string img_idx)) ") "))
+								(print (gimp-image-get-name this_img))
+								
 								;(if (not (= (car (gimp-image-base-type this_img)) 0))	(gimp-convert-rgb this_img)) ; make sure image is in RGB land 
 				  				(gimp-selection-all this_img)		;select all in the image
 				  				(if (car (gimp-edit-copy-visible this_img))	;copy selected area to the buffer  											
@@ -403,9 +397,10 @@
 						
 			  			(gimp-layer-set-offsets layer x_offset y_offset) ;place image layer on the paper			
 					)
-					(set! col_cur (+ col_cur 1))				
+					(set! col_cur (+ col_cur 1))
+					
 				)
-				(set! row_cur (+ row_cur 1))			
+				(set! row_cur (+ row_cur 1))
 			)
 		)
 		(if (= flatten TRUE) (gimp-image-flatten paper)) ;flatten all visible layers	
@@ -431,7 +426,7 @@
     SF-ADJUSTMENT "Minimal _space between images" '(0 0 100 1 10 1 0)   	
     SF-OPTION "Size _units" '(_"millimeter" _"1/16 inch" _"pixel")
     SF-ADJUSTMENT "_DPI of new image" '(300 1 10000 1 10 0 0)
-	SF-ADJUSTMENT "Duplicate image(s) x-times" '(1 1 100 1 10 0 0)	
+	SF-ADJUSTMENT "Repeat image(s) x-times" '(1 1 100 1 10 0 0)	
     SF-ADJUSTMENT "Count of _rows (0 = auto)" '(0 0 100 1 10 0 0)
     SF-ADJUSTMENT "Count of _columns (0 = auto)" '(0 0 100 1 10 0 0) 
 	SF-TOGGLE "Fill empty cells with last image" TRUE
