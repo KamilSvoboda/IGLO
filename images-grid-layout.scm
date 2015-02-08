@@ -159,7 +159,7 @@
 		(set! canvasWidth (- paperWidth (* paperMargin 2)))
 		(set! canvasHeight (- paperHeight (* paperMargin 2)))
 		
-		;debug print - must be called from console
+		;debug print - script have to be called from console
 		(display "Paper with: ")
 		(print paperWidth)
 		(display "Paper height: ")
@@ -175,15 +175,15 @@
 		      (if (= units 0)(set! imagePlaceWidth (round(*  (/ imagePlaceWidth 25.4) DPI)))) ;calculate count of pixels by DPI for image place width
 			  (if (= units 1)(set! imagePlaceWidth (round(*  (/ imagePlaceWidth 16) DPI)))) ;calculate count of pixels by DPI for image place width
 		      (if (> col_nb 0) ;if user set a count of columns and imagePlaceWidth, check if setted count of columns is less, then calculated from imagePlaceWidth 
-		        (set! col_nb (less col_nb (div (+ paperWidth space) (+ imagePlaceWidth space)))) ;set less count of columns - setted or calculated
-		        (set! col_nb (div (+ paperWidth space) (+ imagePlaceWidth space))) ;calculate count of columns (paper size must be enhanced by "space" - for correct division)
+		        (set! col_nb (less col_nb (div (+ canvasWidth space) (+ imagePlaceWidth space)))) ;set less count of columns - setted or calculated
+		        (set! col_nb (div (+ canvasWidth space) (+ imagePlaceWidth space))) ;calculate count of columns (paper size must be enhanced by "space" - for correct division)
 		      )      
 			  (if (= row_nb 0) ;if user didn't specify count of rows on paper
 				(begin            
 				  (set! row_nb 1) ;set count of rows to 1
-				  (set! imagePlaceHeight paperHeight) ;set height of image place same as paper height
+				  (set! imagePlaceHeight canvasHeight) ;set height of image place same as paper height
 				)
-				(set! imagePlaceHeight (div (- paperHeight (* space (- row_nb 1))) row_nb))  	;let rows count as user decide and calculate imagePlaceHeight from defined count of rows
+				(set! imagePlaceHeight (div (- canvasHeight (* space (- row_nb 1))) row_nb))  	;let rows count as user decide and calculate imagePlaceHeight from defined count of rows
 			  )
 		    )
 		    (if (and (= imagePlaceWidth 0) (not(= imagePlaceHeight 0))) ;if user specify only image place height
@@ -191,15 +191,15 @@
 			        (if (= units 0)(set! imagePlaceHeight (round(*  (/ imagePlaceHeight 25.4) DPI)))) ;calculate count of pixels by DPI for image place height
 					(if (= units 1)(set! imagePlaceHeight (round(*  (/ imagePlaceHeight 16) DPI)))) ;calculate count of pixels by DPI for image place height
 			        (if (> row_nb 0) ;if user set a count of rows and imagePlaceHeight check if setted count of rows is less, then calculated from imagePlaceHeight
-			          (set! row_nb (less row_nb (div (+ paperHeight space) (+ imagePlaceHeight space)))) ;set less count of rows (setted or calculated)
-			          (set! row_nb (div (+ paperHeight space) (+ imagePlaceHeight space))) ;calculate count of rows (paper size must be enhanced by "space" - for correct division)
+			          (set! row_nb (less row_nb (div (+ canvasHeight space) (+ imagePlaceHeight space)))) ;set less count of rows (setted or calculated)
+			          (set! row_nb (div (+ canvasHeight space) (+ imagePlaceHeight space))) ;calculate count of rows (paper size must be enhanced by "space" - for correct division)
 			        )        
 			        (if (= col_nb 0) ;if user didn't specify count of columns on paper
 			          (begin                              
 			            (set! col_nb 1) ;set count of columns to 1
-			            (set! imagePlaceWidth paperWidth) ;set width of image place same as paper width
+			            (set! imagePlaceWidth canvasWidth) ;set width of image place same as paper width
 			          )
-			          (set! imagePlaceWidth (div (- paperWidth (* space (- col_nb 1))) col_nb)) 	;let columns count as user decide and calculate imagePlaceWidth from defined count of columns
+			          (set! imagePlaceWidth (div (- canvasWidth (* space (- col_nb 1))) col_nb)) 	;let columns count as user decide and calculate imagePlaceWidth from defined count of columns
 			        )                    
 			    )      
 			    (if (and (not(= imagePlaceWidth 0)) (not(= imagePlaceHeight 0)))   ;if user specify both image place width and height
@@ -217,10 +217,10 @@
 							)
 			            )
 						(let*(
-			                 (portraitColumns (div (+ paperWidth space) (+ imagePlaceWidth space))) ;calculate count of columns in portrait orientation (paper size must be enhanced by "space" - for correct division)
-			                 (portraitRows (div (+ paperHeight space) (+ imagePlaceHeight space))) ;calculate count of rows in portrait orientation -""-                                   
-			                 (landscapeColumns (div (+ paperWidth space) (+ imagePlaceHeight space))) ;calculate count of columns in landscape orientation -""-
-			                 (landscapeRows (div (+ paperHeight space) (+ imagePlaceWidth space))) ; calculate count of rows in landscape orientation -""-
+			                 (portraitColumns (div (+ canvasWidth space) (+ imagePlaceWidth space))) ;calculate count of columns in portrait orientation (paper size must be enhanced by "space" - for correct division)
+			                 (portraitRows (div (+ canvasHeight space) (+ imagePlaceHeight space))) ;calculate count of rows in portrait orientation -""-                                   
+			                 (landscapeColumns (div (+ canvasWidth space) (+ imagePlaceHeight space))) ;calculate count of columns in landscape orientation -""-
+			                 (landscapeRows (div (+ canvasHeight space) (+ imagePlaceWidth space))) ; calculate count of rows in landscape orientation -""-
 			                )
 			                (if (>= (* portraitColumns portraitRows) (* landscapeColumns landscapeRows)) ;if more images will be in portrait orientation
 			                    (begin
@@ -283,8 +283,8 @@
 				              ) 
 				            )
 						)    
-			        	(set! imagePlaceWidth (div (- paperWidth (* space (- col_nb 1))) col_nb)) 	;calculate imagePlaceWidth for defined count of columns
-			        	(set! imagePlaceHeight (div (- paperHeight (* space (- row_nb 1))) row_nb))  	;calculate imagePlaceHeight for defined count of rows    
+			        	(set! imagePlaceWidth (div (- canvasWidth (* space (- col_nb 1))) col_nb)) 	;calculate imagePlaceWidth for defined count of columns
+			        	(set! imagePlaceHeight (div (- canvasHeight (* space (- row_nb 1))) row_nb))  	;calculate imagePlaceHeight for defined count of rows    
 			        )          
 			    )      
 		    )
@@ -313,11 +313,21 @@
 				(set! col_cur 0)			;current column on the paper
 				(while (< col_cur col_nb)		;iterate columns			
 					(let*(
-						(x_offset (* col_cur imagePlaceWidth))	;offset of imagePlace layer in the image (paper)
-						(y_offset (* row_cur imagePlaceHeight))
+						(x_offset (+ (* col_cur imagePlaceWidth) paperMargin))	;offset of imagePlace layer in the image (paper)
+						(y_offset (+ (* row_cur imagePlaceHeight) paperMargin))
 						(layer (car (gimp-layer-new paper imagePlaceWidth imagePlaceHeight RGB-IMAGE "Empty image place" 100 NORMAL-MODE)))
 						)	
-		    					
+		    			
+						;debug print (only in console call)
+						;(display "Col: ")
+						;(print col_cur)
+						;(display "Row: ")
+						;(print row_cur)
+						;(display "x_offset: ")
+						;(print x_offset)
+						;(display "y_offset: ")
+						;(print y_offset)
+
 						(gimp-image-add-layer paper layer (+ (* img_idx duplicate) duplicating_count))  	;add new layer - "(img_idx * duplicate) + duplicating_count" is index of current image cell
 			    		(gimp-edit-clear layer)				;clear new layer
 						
@@ -418,7 +428,7 @@
 	SF-ADJUSTMENT "Paper _margin" '(0 0 100 1 10 1 0)   	
     SF-ADJUSTMENT "Image place w_idth (0 = auto)" '(0 0 10000 1 10 0 0)
     SF-ADJUSTMENT "Image place h_eight (0 = auto)" '(0 0 10000 1 10 0 0)
-    SF-ADJUSTMENT "_Space between images" '(0 0 100 1 10 1 0)   	
+    SF-ADJUSTMENT "Minimal _space between images" '(0 0 100 1 10 1 0)   	
     SF-OPTION "Size _units" '(_"millimeter" _"1/16 inch" _"pixel")
     SF-ADJUSTMENT "_DPI of new image" '(300 1 10000 1 10 0 0)
 	SF-ADJUSTMENT "Duplicate image(s) x-times" '(1 1 100 1 10 0 0)	
