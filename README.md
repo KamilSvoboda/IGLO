@@ -13,7 +13,7 @@ Script use as many as possible opened images according defined grid cell count.
 Size of grid cell, count of grid cell, count of rows and columns are calculated automatically, or 
 defined by user settings.
 
-FOR MORE DETAILS VISIT http://iglo.svoboda.biz
+FOR MORE DETAILS VISIT [http://iglo.svoboda.biz](http://iglo.svoboda.biz)
 
 ##CHANGE-LOG:
 
