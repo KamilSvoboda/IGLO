@@ -6,6 +6,9 @@
 ;
 ; This program is distributed under Apache License 2.0
 
+;CONSOLE CALL (Gimp > Filters > Script-fu > Console)
+;(script-fu-images-grid-layout 1 0 0 0 0 0 0 1 300 1 0 0 TRUE TRUE FALSE 1 TRUE TRUE '(255 255 255) '(255 255 255))
+
 ;CONSTANTS
 (define *scale_interpolation*
   '(("None"        0)
@@ -98,6 +101,8 @@
 (define (script-fu-images-grid-layout size paperWidth paperHeight paperMargin imagePlaceWidth imagePlaceHeight space units DPI duplicate row_nb col_nb fill_empty rotate chg_ratio interpolation superSample flatten fg_color bg_color)
 	(let*
 		(	;global variables
+		(canvasWidth 0) ;width of drawing area
+		(canvasHeight 0) ;height of drawing area
 		(img (gimp-image-list))		;list of opened images
 		(img_nb (car img))   		;how many images are open
 		(images (cadr img))   		;the array of images
@@ -151,12 +156,25 @@
 			)      
 		)
 		
+		(set! canvasWidth (- paperWidth (* paperMargin 2)))
+		(set! canvasHeight (- paperHeight (* paperMargin 2)))
+		
+		;debug print - must be called from console
+		(display "Paper with: ")
+		(print paperWidth)
+		(display "Paper height: ")
+		(print paperHeight)
+		(display "Canvas width: ")
+		(print canvasWidth)
+		(display "Canvas height: ")
+		(print canvasHeight)
+		
 		;CALCULATING COUNT OF ROWS AND COLUMNS
-		(if (and (not(= imagePlaceWidth 0)) (= imagePlaceHeight 0)) ;if user specify only image place width
+		(if (and (not(= imagePlaceWidth 0)) (= imagePlaceHeight 0)) ;if user specify only image place WIDTH
 			(begin
 		      (if (= units 0)(set! imagePlaceWidth (round(*  (/ imagePlaceWidth 25.4) DPI)))) ;calculate count of pixels by DPI for image place width
 			  (if (= units 1)(set! imagePlaceWidth (round(*  (/ imagePlaceWidth 16) DPI)))) ;calculate count of pixels by DPI for image place width
-		      (if (> col_nb 0) ;if user set a count of columns and imagePlaceWidth check if setted count of columns is less, then calculated from imagePlaceWidth 
+		      (if (> col_nb 0) ;if user set a count of columns and imagePlaceWidth, check if setted count of columns is less, then calculated from imagePlaceWidth 
 		        (set! col_nb (less col_nb (div (+ paperWidth space) (+ imagePlaceWidth space)))) ;set less count of columns - setted or calculated
 		        (set! col_nb (div (+ paperWidth space) (+ imagePlaceWidth space))) ;calculate count of columns (paper size must be enhanced by "space" - for correct division)
 		      )      
@@ -415,5 +433,4 @@
     SF-COLOR "_Foreground (empty image place color)"	'(255 255 255)
     SF-COLOR "_Background (around images)"	'(255 255 255)
     ;SF-DIRNAME "Process all images from directory"   "Select directory"    
-    ;script-fu-images-grid-layout 1 0 0 0 0 1 300 1 TRUE 0 0 0.5 TRUE FALSE 1 1 TRUE '(255 255 255) '(255 255 255))
 )
