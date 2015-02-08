@@ -98,7 +98,7 @@
 	)
 )
 
-(define (script-fu-images-grid-layout size paperWidth paperHeight paperMargin imagePlaceWidth imagePlaceHeight space units DPI duplicate row_nb col_nb fill_empty rotate chg_ratio interpolation superSample flatten fg_color bg_color)
+(define (script-fu-images-grid-layout size paperWidth paperHeight paperMargin imagePlaceWidth imagePlaceHeight space units DPI repeat_xtimes row_nb col_nb fill_empty rotate chg_ratio interpolation superSample flatten fg_color bg_color)
 	(let*
 		(	;global variables
 		(canvasWidth 0) 			;width of drawing area
@@ -109,9 +109,9 @@
 		(paper 0)					;new image
 		(bg 0)						;background image
 		)		
-		;(gimp-message (string-append "img_idx: "(number->string (- (/ img_nb duplicate) 1))))	; example of message construction (for development)	
+		;(gimp-message (string-append "image_counter: "(number->string (- (/ img_nb repeat_xtimes) 1))))	; example of message construction (for development)	
 		
-		(set! img_nb (* img_nb duplicate)) ;set number of images as multiple of parameter "duplicate"
+		(set! img_nb (* img_nb repeat_xtimes)) ;set number of images as multiple of parameter "repeat_xtimes"
 
 		(if (and (= paperWidth 0) (= paperHeight 0))
 			(begin
@@ -298,8 +298,8 @@
 		(gimp-edit-fill bg BACKGROUND-FILL)
 		;(gimp-display-new paper)
 		(let(	  	
-			(img_idx 0)				;set index of image in Gimp image list to number of images
-			(duplicating_count 0)	;counter for duplicating images
+			(image_counter 0)		;number of inserted images (ZERO BASED!)
+			(repeating_counter 0)	;counter for repeating images
 			(row_cur 0)				;current row on the paper	
 			(col_cur 0)				;current column on the paper
 			(this_img 0)			;opened image
@@ -318,19 +318,20 @@
 						(print (string-append "Column: " (number->string col_cur)))
 						(print (string-append "Row: " (number->string row_cur)))						
 
-						(gimp-image-add-layer paper layer (+ (* img_idx duplicate) duplicating_count))  	;add new layer - "(img_idx * duplicate) + duplicating_count" is index of current image cell
+						(gimp-image-add-layer paper layer (+ (* image_counter repeat_xtimes) repeating_counter))  	;add new layer - "(image_counter * repeat_xtimes) + repeating_counter" is index of current image cell
 			    		(gimp-edit-clear layer)				;clear new layer
 						
-			  			(if (or (< (+ (* img_idx duplicate) duplicating_count) img_nb) ;"(img_idx * duplicate) + duplicating_count" is index of current image cell																					
+			  			(if (or (< (+ (* image_counter repeat_xtimes) repeating_counter) img_nb) ;"(image_counter * repeat_xtimes) + repeating_counter" is index of current image cell																					
 								(and (= fill_empty TRUE)(> img_nb 0)))	; there is any image opened and last image should be duplicated  
 			  				(begin											
-								(if (>= (+ (* img_idx duplicate) duplicating_count) img_nb) ;set img_idx back to last opened image when we process empty cells  ( fill_empty is set TRUE)								
-									(set! img_idx (- (/ img_nb duplicate) 1))
+								(if (>= (+ (* image_counter repeat_xtimes) repeating_counter) img_nb) ;set image_counter back to number of images, when we process empty cells  ( fill_empty is set TRUE)								
+									(set! image_counter (- (/ img_nb repeat_xtimes) 1))
 								)									
-				  				(set! this_img (aref images img_idx)) 	;get opened image
-				  				(gimp-drawable-set-name layer (car (gimp-image-get-name this_img))) ;set layer name same as image name								
+				  				(set! this_img (aref images (- (- img_nb image_counter) 1))) 	;get image in reversed order (image with highest index first)
+				  				(gimp-drawable-set-name layer (car (gimp-image-get-name this_img))) ;set layer name same as image name
 								
-								(display (string-append (string-append "Image (" (number->string img_idx)) ") "))
+								;debug print
+								(display (string-append (string-append "Image (" (number->string image_counter)) ") "))
 								(print (gimp-image-get-name this_img))
 								
 								;(if (not (= (car (gimp-image-base-type this_img)) 0))	(gimp-convert-rgb this_img)) ; make sure image is in RGB land 
@@ -380,12 +381,12 @@
 				  				)
 				  				(gimp-selection-none this_img)
 								
-								(set! duplicating_count (+ duplicating_count 1))	;increase counter for duplicating images
+								(set! repeating_counter (+ repeating_counter 1))	;increase counter for repeating images
 								
-								(if (>= duplicating_count duplicate)		;if duplicating is equel to "duplicate" increase image index
+								(if (>= repeating_counter repeat_xtimes)		;if repeating is equel to "repeat_xtimes" increase image index
 									(begin
-										(set! img_idx (+ img_idx 1))
-										(set! duplicating_count 0)
+										(set! image_counter (+ image_counter 1))
+										(set! repeating_counter 0)
 									)
 								)																
 			  				)
@@ -418,12 +419,12 @@
     "20th March 2005"
     "RGB* GRAY* INDEXED*"
     SF-OPTION "Paper _size" (mapcar car *paper_size*)
-    SF-ADJUSTMENT "Paper _width (0 = from combobox)" '(0 0 10000 1 10 0 0)
-    SF-ADJUSTMENT "Paper _heigh (0 = from combobox)" '(0 0 10000 1 10 0 0)
+    SF-ADJUSTMENT "Paper _width (0 = from combobox)" '(0 0 10000 1 10 1 0)
+    SF-ADJUSTMENT "Paper _heigh (0 = from combobox)" '(0 0 10000 1 10 1 0)
 	SF-ADJUSTMENT "Paper _margin" '(0 0 100 1 10 1 0)   	
-    SF-ADJUSTMENT "Image place w_idth (0 = auto)" '(0 0 10000 1 10 0 0)
-    SF-ADJUSTMENT "Image place h_eight (0 = auto)" '(0 0 10000 1 10 0 0)
-    SF-ADJUSTMENT "Minimal _space between images" '(0 0 100 1 10 1 0)   	
+    SF-ADJUSTMENT "Image place w_idth (0 = auto)" '(0 0 10000 1 10 1 0)
+    SF-ADJUSTMENT "Image place h_eight (0 = auto)" '(0 0 10000 1 10 1 0)
+    SF-ADJUSTMENT "Minimal _space between images" '(0 0 100 1 10 1 0)
     SF-OPTION "Size _units" '(_"millimeter" _"1/16 inch" _"pixel")
     SF-ADJUSTMENT "_DPI of new image" '(300 1 10000 1 10 0 0)
 	SF-ADJUSTMENT "Repeat image(s) x-times" '(1 1 100 1 10 0 0)	
