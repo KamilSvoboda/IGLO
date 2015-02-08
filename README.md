@@ -19,7 +19,7 @@ FOR MORE DETAILS VISIT [http://iglo.svoboda.biz](http://iglo.svoboda.biz)
 
 ###1.5 2015/02/08
 * new feature - support for paper margin (empty space around paper)
-* reversed order of source images in final image
+* fixed order of source images in final image
 
 ###1.4 2014/06/02
 * New size units - inches
