@@ -95,7 +95,7 @@
 	)
 )
 
-(define (script-fu-images-grid-layout size paperWidth paperHeight imagePlaceWidth imagePlaceHeight space units DPI duplicate row_nb col_nb fill_empty rotate chg_ratio interpolation superSample flatten fg_color bg_color)
+(define (script-fu-images-grid-layout size paperWidth paperHeight paperMargin imagePlaceWidth imagePlaceHeight space units DPI duplicate row_nb col_nb fill_empty rotate chg_ratio interpolation superSample flatten fg_color bg_color)
 	(let*
 		(	;global variables
 		(img (gimp-image-list))		;list of opened images
@@ -122,25 +122,35 @@
 				(if (= paperHeight 0)
 					(set! paperHeight 1)  
 				)    
-				(if (= units 0) ;recalculate sizes from millimeters to pixels
+				(if (= units 0) ;recalculate paper sizes from millimeters to pixels
 					(begin
 						(set! paperWidth (round(*  (/ paperWidth 25.4) DPI)))
 						(set! paperHeight (round(* (/ paperHeight 25.4) DPI)))
-						(set! space (round(* (/ space 25.4) DPI)))
 					)      
 				)
-				(if (= units 1) ;recalculate sizes from inches to pixels
+				(if (= units 1) ;recalculate paper sizes from inches to pixels
 					(begin
 						(set! paperWidth (round(* (/ paperWidth 16) DPI))) 
 						(set! paperHeight (round(* (/ paperHeight 16) DPI)))
-						(set! space (round(* (/ space 16) DPI)))
 					)      
 				)
 			)
 		)
 		
+		;recalculate paperMargin and spece between images
+		(if (= units 0) ;recalculate paperMargin and space between images from millimeters to pixels
+			(begin
+				(set! paperMargin (round(* (/ paperMargin 25.4) DPI)))
+				(set! space (round(* (/ space 25.4) DPI)))
+			)
+		)
+		(if (= units 1) ;recalculate paperMargin and space between images from inches to pixels
+			(begin
+				(set! paperMargin (round(* (/ paperMargin 16) DPI)))
+				(set! space (round(* (/ space 16) DPI)))
+			)      
+		)
 		
-
 		;CALCULATING COUNT OF ROWS AND COLUMNS
 		(if (and (not(= imagePlaceWidth 0)) (= imagePlaceHeight 0)) ;if user specify only image place width
 			(begin
@@ -387,9 +397,10 @@
     SF-OPTION "Paper _size" (mapcar car *paper_size*)
     SF-ADJUSTMENT "Paper _width (0 = from combobox)" '(0 0 10000 1 10 0 0)
     SF-ADJUSTMENT "Paper _heigh (0 = from combobox)" '(0 0 10000 1 10 0 0)
+	SF-ADJUSTMENT "Paper _margin" '(0 0 100 1 10 1 0)   	
     SF-ADJUSTMENT "Image place w_idth (0 = auto)" '(0 0 10000 1 10 0 0)
     SF-ADJUSTMENT "Image place h_eight (0 = auto)" '(0 0 10000 1 10 0 0)
-    SF-ADJUSTMENT "_Space between images" '(0 0 5 1 10 1 0)   	
+    SF-ADJUSTMENT "_Space between images" '(0 0 100 1 10 1 0)   	
     SF-OPTION "Size _units" '(_"millimeter" _"1/16 inch" _"pixel")
     SF-ADJUSTMENT "_DPI of new image" '(300 1 10000 1 10 0 0)
 	SF-ADJUSTMENT "Duplicate image(s) x-times" '(1 1 100 1 10 0 0)	
