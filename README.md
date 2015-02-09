@@ -76,11 +76,3 @@ FOR MORE DETAILS VISIT [http://iglo.svoboda.biz](http://iglo.svoboda.biz)
 * specify number of images on paper (size of grid cell is calculated)
 * set distance between grid cells (image places)
 * select backgroud color (color of space between grid cells)
-
-##KNOWN-ISSUES
-* select size by scroll bar set wrong number (GTK bug)
-
-##TODO:
-* 110% method for image scaling
-* intelligent cutting of images by grid cell size (select the feature from combobox)
-* process all images from selected directory
