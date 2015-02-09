@@ -7,7 +7,7 @@
 ; This program is distributed under Apache License 2.0
 
 ;CONSOLE CALL (Gimp > Filters > Script-fu > Console)
-;(script-fu-images-grid-layout 1 0 0 0 0 0 0 1 300 1 0 0 TRUE TRUE FALSE 1 TRUE TRUE '(255 255 255) '(255 255 255))
+;(script-fu-images-grid-layout 1 0 0 0 0 0 0 0 300 1 0 0 0 TRUE FALSE TRUE TRUE '(255 255 255) '(255 255 255))
 
 ;CONSTANTS  
 (define *positioning*
