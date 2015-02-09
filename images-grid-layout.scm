@@ -1,4 +1,4 @@
-; IGLO Images Grid LayOut  1.5
+; IGLO Images Grid LayOut  1.6
 ; Easy way to print multiple photos on single paper
 ; 
 ; Copyright (C) 2005-2015 Kamil Svoboda <email: kamil (dot) svoboda (at sign) centrum (dot) cz
@@ -9,14 +9,13 @@
 ;CONSOLE CALL (Gimp > Filters > Script-fu > Console)
 ;(script-fu-images-grid-layout 1 0 0 0 0 0 0 1 300 1 0 0 TRUE TRUE FALSE 1 TRUE TRUE '(255 255 255) '(255 255 255))
 
-;CONSTANTS
-(define *scale_interpolation*
-  '(("None"        0)
-    ("Linear"          1)
-    ("Cubic"   2)  
-    )
+;CONSTANTS  
+(define *positioning*
+  '(("Snap to edge" 0)
+   ("Center in the grid cell" 1)
+	)
 )
-   
+
 (define *paper_size*
   '(("A4 - 210x297 mm" 210 297)
     ("A5 - 148x210 mm" 148 210)
@@ -98,7 +97,7 @@
 	)
 )
 
-(define (script-fu-images-grid-layout size paperWidth paperHeight paperMargin imagePlaceWidth imagePlaceHeight space units DPI repeat_xtimes row_nb col_nb fill_empty rotate chg_ratio interpolation superSample flatten fg_color bg_color)
+(define (script-fu-images-grid-layout size paperWidth paperHeight paperMargin imagePlaceWidth imagePlaceHeight space units DPI repeat_xtimes row_nb col_nb positioning rotate chg_ratio fill_empty flatten fg_color bg_color)
 	(let*
 		(	;global variables
 		(canvasWidth 0) 			;width of drawing area
@@ -355,11 +354,11 @@
 											)
 											(if (= chg_ratio TRUE)
 												;if allow change aspect ratio of the image							
-												(gimp-drawable-transform-scale sel 0 0 imagePlaceWidth imagePlaceHeight 0 interpolation superSample 3 0)
+												(gimp-drawable-transform-scale sel 0 0 imagePlaceWidth imagePlaceHeight 0 1 TRUE 3 0)
 												;if preserve aspect ration of the image
 												(if (> (/ height width) (/ imagePlaceHeight imagePlaceWidth) ) ;;deside scale in height or width
-													(gimp-drawable-transform-scale sel 0 0 (* width (/ imagePlaceHeight height)) imagePlaceHeight 0 interpolation superSample 3 0)
-													(gimp-drawable-transform-scale sel 0 0 imagePlaceWidth (* height (/ imagePlaceWidth width)) 0 interpolation superSample 3 0)
+													(gimp-drawable-transform-scale sel 0 0 (* width (/ imagePlaceHeight height)) imagePlaceHeight 0 1 TRUE 3 0)
+													(gimp-drawable-transform-scale sel 0 0 imagePlaceWidth (* height (/ imagePlaceWidth width)) 0 1 TRUE 3 0)
 												)						
 											)						
 				   							
@@ -368,12 +367,20 @@
 												(pos_x 0)
 												(pos_y 0)
 												)
-												(if (= (+ row_cur 1) row_nb) ;for  last row align down
-													(set! pos_y (- imagePlaceHeight (car (gimp-drawable-height sel))))
+												(if (= positioning 0) 
+													(begin ;snap image to grid cell edge
+														(if (= (+ row_cur 1) row_nb) ;for  last row align down
+															(set! pos_y (- imagePlaceHeight (car (gimp-drawable-height sel))))
+														)
+														(if (= (+ col_cur 1) col_nb) ;for  last column align right
+															(set! pos_x (- imagePlaceWidth (car (gimp-drawable-width sel))))
+														)												
+													)
+													(begin ;center image in grid cell
+														(set! pos_y (/ (- imagePlaceHeight (car (gimp-drawable-height sel))) 2))
+														(set! pos_x (/ (- imagePlaceWidth (car (gimp-drawable-width sel))) 2))
+													)
 												)
-												(if (= (+ col_cur 1) col_nb) ;for  last column align right
-													(set! pos_x (- imagePlaceWidth (car (gimp-drawable-width sel))))
-												)												
 												(gimp-layer-set-offsets sel pos_x pos_y)	
 											)	
 											(gimp-floating-sel-anchor sel)		;anchor floating image layer to the imagePlace layer 											
@@ -425,18 +432,17 @@
     SF-ADJUSTMENT "Image place w_idth (0 = auto)" '(0 0 10000 1 10 1 0)
     SF-ADJUSTMENT "Image place h_eight (0 = auto)" '(0 0 10000 1 10 1 0)
     SF-ADJUSTMENT "Minimal _space between images" '(0 0 100 1 10 1 0)
-    SF-OPTION "Size _units" '(_"millimeter" _"1/16 inch" _"pixel")
+    SF-OPTION "Size _units" '(_"millimeters" _"1/16-inches" _"pixels")
     SF-ADJUSTMENT "_DPI of new image" '(300 1 10000 1 10 0 0)
 	SF-ADJUSTMENT "Repeat image(s) x-times" '(1 1 100 1 10 0 0)	
     SF-ADJUSTMENT "Count of _rows (0 = auto)" '(0 0 100 1 10 0 0)
     SF-ADJUSTMENT "Count of _columns (0 = auto)" '(0 0 100 1 10 0 0) 
-	SF-TOGGLE "Fill empty cells with last image" TRUE
+	SF-OPTION "Positioning strategy" (mapcar car *positioning*)		
     SF-TOGGLE "Auto ro_tate images" TRUE
-    SF-TOGGLE "Allow change image _aspect ratio" FALSE
-    SF-OPTION "_Interpolation" (mapcar car *scale_interpolation*)
-    SF-TOGGLE "Supersample" TRUE
+    SF-TOGGLE "Allow change _aspect ratio" FALSE
+	SF-TOGGLE "Fill empty cells with last image" TRUE	
     SF-TOGGLE "Flatten _visible layers" TRUE
-    SF-COLOR "_Foreground (empty image place color)"	'(255 255 255)
+    SF-COLOR "_Foreground (empty image place)"	'(255 255 255)
     SF-COLOR "_Background (around images)"	'(255 255 255)
     ;SF-DIRNAME "Process all images from directory"   "Select directory"    
 )
