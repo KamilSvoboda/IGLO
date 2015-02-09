@@ -134,8 +134,8 @@
 				)
 				(if (= units 1) ;recalculate paper sizes from inches to pixels
 					(begin
-						(set! paperWidth (round(* (/ paperWidth 16) DPI))) 
-						(set! paperHeight (round(* (/ paperHeight 16) DPI)))
+						(set! paperWidth (round(* paperWidth DPI))) 
+						(set! paperHeight (round(* paperHeight DPI)))
 					)      
 				)
 			)
@@ -150,8 +150,8 @@
 		)
 		(if (= units 1) ;recalculate paperMargin and space between images from inches to pixels
 			(begin
-				(set! paperMargin (round(* (/ paperMargin 16) DPI)))
-				(set! space (round(* (/ space 16) DPI)))
+				(set! paperMargin (round(* paperMargin DPI)))
+				(set! space (round(* space DPI)))
 			)      
 		)
 		
@@ -167,8 +167,8 @@
 		;CALCULATING COUNT OF ROWS AND COLUMNS
 		(if (and (not(= imagePlaceWidth 0)) (= imagePlaceHeight 0)) ;if user specify only image place WIDTH
 			(begin
-		      (if (= units 0)(set! imagePlaceWidth (round(*  (/ imagePlaceWidth 25.4) DPI)))) ;calculate count of pixels by DPI for image place width
-			  (if (= units 1)(set! imagePlaceWidth (round(*  (/ imagePlaceWidth 16) DPI)))) ;calculate count of pixels by DPI for image place width
+		      (if (= units 0)(set! imagePlaceWidth (round(* (/ imagePlaceWidth 25.4) DPI)))) ;calculate count of pixels by DPI for image place width
+			  (if (= units 1)(set! imagePlaceWidth (round(* imagePlaceWidth DPI)))) ;calculate count of pixels by DPI for image place width
 		      (if (> col_nb 0) ;if user set a count of columns and imagePlaceWidth, check if setted count of columns is less, then calculated from imagePlaceWidth 
 		        (set! col_nb (less col_nb (div (+ canvasWidth space) (+ imagePlaceWidth space)))) ;set less count of columns - setted or calculated
 		        (set! col_nb (div (+ canvasWidth space) (+ imagePlaceWidth space))) ;calculate count of columns (paper size must be enhanced by "space" - for correct division)
@@ -183,8 +183,8 @@
 		    )
 		    (if (and (= imagePlaceWidth 0) (not(= imagePlaceHeight 0))) ;if user specify only image place height
 			    (begin
-			        (if (= units 0)(set! imagePlaceHeight (round(*  (/ imagePlaceHeight 25.4) DPI)))) ;calculate count of pixels by DPI for image place height
-					(if (= units 1)(set! imagePlaceHeight (round(*  (/ imagePlaceHeight 16) DPI)))) ;calculate count of pixels by DPI for image place height
+			        (if (= units 0)(set! imagePlaceHeight (round(* (/ imagePlaceHeight 25.4) DPI)))) ;calculate count of pixels by DPI for image place height
+					(if (= units 1)(set! imagePlaceHeight (round(* imagePlaceHeight DPI)))) ;calculate count of pixels by DPI for image place height
 			        (if (> row_nb 0) ;if user set a count of rows and imagePlaceHeight check if setted count of rows is less, then calculated from imagePlaceHeight
 			          (set! row_nb (less row_nb (div (+ canvasHeight space) (+ imagePlaceHeight space)))) ;set less count of rows (setted or calculated)
 			          (set! row_nb (div (+ canvasHeight space) (+ imagePlaceHeight space))) ;calculate count of rows (paper size must be enhanced by "space" - for correct division)
@@ -207,8 +207,8 @@
 			            )
 						(if (= units 1)
 							(begin
-								(set! imagePlaceWidth (round(*  (/ imagePlaceWidth 16) DPI))) ;calculate count of pixels by DPI
-								(set! imagePlaceHeight (round(*  (/ imagePlaceHeight 16) DPI))) ;calculate count of pixels by DPI
+								(set! imagePlaceWidth (round(*  imagePlaceWidth DPI))) ;calculate count of pixels by DPI
+								(set! imagePlaceHeight (round(*  imagePlaceHeight DPI))) ;calculate count of pixels by DPI
 							)
 			            )
 						(let*(
@@ -432,7 +432,7 @@
     SF-ADJUSTMENT "Image place w_idth (0 = auto)" '(0 0 10000 1 10 1 0)
     SF-ADJUSTMENT "Image place h_eight (0 = auto)" '(0 0 10000 1 10 1 0)
     SF-ADJUSTMENT "Minimal _space between images" '(0 0 100 1 10 1 0)
-    SF-OPTION "Size _units" '(_"millimeters" _"1/16-inches" _"pixels")
+    SF-OPTION "Size _units" '(_"millimeters" _"inches" _"pixels")
     SF-ADJUSTMENT "_DPI of new image" '(300 1 10000 1 10 0 0)
 	SF-ADJUSTMENT "Repeat image(s) x-times" '(1 1 100 1 10 0 0)	
     SF-ADJUSTMENT "Count of _rows (0 = auto)" '(0 0 100 1 10 0 0)
