@@ -17,8 +17,13 @@ FOR MORE DETAILS VISIT [http://iglo.svoboda.biz](http://iglo.svoboda.biz)
 
 ##CHANGE-LOG:
 
+###1.6 2015/02/09
+* new option - image placement strategy
+	* Snap to paper edge
+    * Center in the grid cell
+
 ###1.5 2015/02/08
-* new feature - support for paper margin (empty space around paper)
+* new option - paper margin (size of empty space around paper)
 * fixed order of source images in final image
 
 ###1.4 2014/06/02
