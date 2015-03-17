@@ -17,6 +17,9 @@ FOR MORE DETAILS VISIT [http://iglo.svoboda.biz](http://iglo.svoboda.biz)
 
 ##CHANGE-LOG:
 
+###1.7 2015/03/17
+* fixed issue with global functions
+
 ###1.6 2015/02/09
 * new option - image placement strategy
 	* Snap to paper edge
