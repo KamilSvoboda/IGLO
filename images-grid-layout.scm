@@ -42,62 +42,62 @@
     )
 )
     
-;FUNCTIONS
-(define (round num) ;returns rounded number
-	(let* (
-        (result 0)
-        (absolut (trunc num)) ;absolut digites of the real
-        (decimal (- num absolut)) ;decimal digites of the real
-        )
-        (if (> decimal 0)
-			(if (< decimal 0.5)
-				(set! result absolut)
-				(set! result (+ absolut 1))
-			)
-			(set! result absolut)
-        )        
-	)
-)
-
-(define (div a b) ;returns 
-	(trunc(/ a b))
-)
-
-(define (less a b) ;returns less number
-	(let* ((return 0))
-	    (if (< a b)
-			(set! return a)
-			(set! return b)
-	    )
-	)  
-)
-
-(define (scale img draw new_width new_height)
-	(let* (
-		(width)
-		(height)
-	)
-		(gimp-image-undo-group-start img)
-		(gimp-image-flatten img)
-		; first pass
-		(set! width  (/ (car (gimp-image-width  img)) 2))
-		(set! height (/ (car (gimp-image-height img)) 2))
-		(gimp-selection-sharpen img)
-		(gimp-image-scale img width height)		
-		; second pass
-		(set! width  (/ (car (gimp-image-width  img)) 2))
-		(set! height (/ (car (gimp-image-height img)) 2))
-		(gimp-selection-sharpen img)
-		(gimp-image-scale img width height)
-		(set! draw (car (gimp-image-get-active-drawable img)))
-		; unsharp
-		(plug-in-unsharp-mask 1 img draw 0.3 0.8 0)		
-		(gimp-image-undo-group-end img)
-		(gimp-displays-flush)
-	)
-)
-
 (define (script-fu-images-grid-layout size paperWidth paperHeight paperMargin imagePlaceWidth imagePlaceHeight space units DPI repeat_xtimes row_nb col_nb positioning rotate chg_ratio fill_empty flatten fg_color bg_color)
+	;FUNCTIONS
+	(define (round num) ;returns rounded number
+		(let* (
+			(result 0)
+			(absolut (trunc num)) ;absolut digites of the real
+			(decimal (- num absolut)) ;decimal digites of the real
+			)
+			(if (> decimal 0)
+				(if (< decimal 0.5)
+					(set! result absolut)
+					(set! result (+ absolut 1))
+				)
+				(set! result absolut)
+			)        
+		)
+	)
+
+	(define (div a b) ;returns 
+		(trunc(/ a b))
+	)
+
+	(define (less a b) ;returns less number
+		(let* ((return 0))
+			(if (< a b)
+				(set! return a)
+				(set! return b)
+			)
+		)  
+	)
+
+	(define (scale img draw new_width new_height)
+		(let* (
+			(width)
+			(height)
+		)
+			(gimp-image-undo-group-start img)
+			(gimp-image-flatten img)
+			; first pass
+			(set! width  (/ (car (gimp-image-width  img)) 2))
+			(set! height (/ (car (gimp-image-height img)) 2))
+			(gimp-selection-sharpen img)
+			(gimp-image-scale img width height)		
+			; second pass
+			(set! width  (/ (car (gimp-image-width  img)) 2))
+			(set! height (/ (car (gimp-image-height img)) 2))
+			(gimp-selection-sharpen img)
+			(gimp-image-scale img width height)
+			(set! draw (car (gimp-image-get-active-drawable img)))
+			; unsharp
+			(plug-in-unsharp-mask 1 img draw 0.3 0.8 0)		
+			(gimp-image-undo-group-end img)
+			(gimp-displays-flush)
+		)
+	)
+	
 	(let*
 		(	;global variables
 		(canvasWidth 0) 			;width of drawing area
