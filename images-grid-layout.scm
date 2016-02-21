@@ -103,15 +103,13 @@
 		(canvasWidth 0) 			;width of drawing area
 		(canvasHeight 0) 			;height of drawing area
 		(img (gimp-image-list))		;list of opened images
-		(img_nb (car img))   		;how many images are open
+		(opened_nb (car img))   	;how many images are opened
+		(img_nb (* opened_nb repeat_xtimes))	;number of requested images on paper
 		(images (cadr img))   		;the array of images
 		(paper 0)					;new image
 		(bg 0)						;background image
 		)		
-		;(gimp-message (string-append "image_counter: "(number->string (- (/ img_nb repeat_xtimes) 1))))	; example of message construction (for development)	
-		
-		(set! img_nb (* img_nb repeat_xtimes)) ;set number of images as multiple of parameter "repeat_xtimes"
-
+		;(gimp-message (string-append "number_of_processed: "(number->string (- (/ img_nb repeat_xtimes) 1))))	; example of message construction (for development)	
 		(if (and (= paperWidth 0) (= paperHeight 0))
 			(begin
 				(set! paperWidth  (cadr (nth size *paper_size*))) ;pick up paper width from list of sizes
@@ -284,7 +282,10 @@
 			    )      
 		    )
 		)        
-
+		;debug print - script have to be called from console
+		(print (string-append "Number of cols: " (number->string col_nb)))
+		(print (string-append "Number of rows: " (number->string row_nb)))
+		
 		(gimp-context-set-foreground fg_color)		;set foreground by user selection	
 		(gimp-context-set-background bg_color)		;set backgroud by user selection	  	
 		
@@ -297,7 +298,7 @@
 		(gimp-edit-fill bg BACKGROUND-FILL)
 		;(gimp-display-new paper)
 		(let(	  	
-			(image_counter 0)		;number of inserted images (ZERO BASED!)
+			(number_of_processed 0)		;number of inserted images (ZERO BASED!)
 			(repeating_counter 0)	;counter for repeating images
 			(row_cur 0)				;current row on the paper	
 			(col_cur 0)				;current column on the paper
@@ -312,25 +313,25 @@
 						(y_offset (+ (* row_cur imagePlaceHeight) paperMargin))
 						(layer (car (gimp-layer-new paper imagePlaceWidth imagePlaceHeight RGB-IMAGE "Empty image place" 100 NORMAL-MODE)))
 						)	
-		    			
+		    									
 						;debug print (only in console call)
 						(print (string-append "Column: " (number->string col_cur)))
 						(print (string-append "Row: " (number->string row_cur)))						
 
-						(gimp-image-add-layer paper layer (+ (* image_counter repeat_xtimes) repeating_counter))  	;add new layer - "(image_counter * repeat_xtimes) + repeating_counter" is index of current image cell
+						(gimp-image-add-layer paper layer (+ (* number_of_processed repeat_xtimes) repeating_counter))  	;add new layer - "(number_of_processed * repeat_xtimes) + repeating_counter" is index of current image cell
 			    		(gimp-edit-clear layer)				;clear new layer
 						
-			  			(if (or (< (+ (* image_counter repeat_xtimes) repeating_counter) img_nb) ;"(image_counter * repeat_xtimes) + repeating_counter" is index of current image cell																					
+			  			(if (or (< (+ (* number_of_processed repeat_xtimes) repeating_counter) img_nb) ;"(number_of_processed * repeat_xtimes) + repeating_counter" is index of current image cell
 								(and (= fill_empty TRUE)(> img_nb 0)))	; there is any image opened and last image should be duplicated  
 			  				(begin											
-								(if (>= (+ (* image_counter repeat_xtimes) repeating_counter) img_nb) ;set image_counter back to number of images, when we process empty cells  ( fill_empty is set TRUE)								
-									(set! image_counter (- (/ img_nb repeat_xtimes) 1))
+								(if (>= (+ (* number_of_processed repeat_xtimes) repeating_counter) img_nb) ;set number_of_processed back to number of images, when we process empty cells  ( fill_empty is set TRUE)								
+									(set! number_of_processed (- (/ img_nb repeat_xtimes) 1))
 								)									
-				  				(set! this_img (aref images (- (- img_nb image_counter) 1))) 	;get image in reversed order (image with highest index first)
+				  				(set! this_img (aref images (- (- img_nb number_of_processed) 1))) 	;get image in reversed order (image with highest index first)
 				  				(gimp-drawable-set-name layer (car (gimp-image-get-name this_img))) ;set layer name same as image name
 								
 								;debug print
-								(display (string-append (string-append "Image (" (number->string image_counter)) ") "))
+								(display (string-append (string-append "Image (" (number->string number_of_processed)) ") "))
 								(print (gimp-image-get-name this_img))
 								
 								;(if (not (= (car (gimp-image-base-type this_img)) 0))	(gimp-convert-rgb this_img)) ; make sure image is in RGB land 
@@ -392,7 +393,7 @@
 								
 								(if (>= repeating_counter repeat_xtimes)		;if repeating is equel to "repeat_xtimes" increase image index
 									(begin
-										(set! image_counter (+ image_counter 1))
+										(set! number_of_processed (+ number_of_processed 1))
 										(set! repeating_counter 0)
 									)
 								)																
