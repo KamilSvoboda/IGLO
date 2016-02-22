@@ -109,7 +109,7 @@
 		(paper 0)					;new image
 		(bg 0)						;background image
 		)		
-		;(gimp-message (string-append "number_of_processed: "(number->string (- (/ img_nb repeat_xtimes) 1))))	; example of message construction (for development)	
+		;(gimp-message (string-append "number_of_inserted: "(number->string (- (/ img_nb repeat_xtimes) 1))))	; example of message construction (for development)	
 		(if (and (= paperWidth 0) (= paperHeight 0))
 			(begin
 				(set! paperWidth  (cadr (nth size *paper_size*))) ;pick up paper width from list of sizes
@@ -297,8 +297,9 @@
 		(gimp-image-add-layer paper bg 0)  		;add background layer to the image
 		(gimp-edit-fill bg BACKGROUND-FILL)
 		;(gimp-display-new paper)
-		(let(	  	
-			(number_of_processed 0)		;number of inserted images (ZERO BASED!)
+		(let(
+			(image_index (- opened_nb 1)) ;index of processed image - get image in reversed order (image with highest index first)
+			(number_of_inserted 0)	;number of inserted images (ZERO BASED!)
 			(repeating_counter 0)	;counter for repeating images
 			(row_cur 0)				;current row on the paper	
 			(col_cur 0)				;current column on the paper
@@ -318,20 +319,17 @@
 						(print (string-append "Column: " (number->string col_cur)))
 						(print (string-append "Row: " (number->string row_cur)))						
 
-						(gimp-image-add-layer paper layer (+ (* number_of_processed repeat_xtimes) repeating_counter))  	;add new layer - "(number_of_processed * repeat_xtimes) + repeating_counter" is index of current image cell
+						(gimp-image-add-layer paper layer number_of_inserted)  	;add new layer
 			    		(gimp-edit-clear layer)				;clear new layer
 						
-			  			(if (or (< (+ (* number_of_processed repeat_xtimes) repeating_counter) img_nb) ;"(number_of_processed * repeat_xtimes) + repeating_counter" is index of current image cell
+			  			(if (or (< number_of_inserted img_nb) ;number of inserted is lesse then total requested number
 								(and (= fill_empty TRUE)(> img_nb 0)))	; there is any image opened and last image should be duplicated  
 			  				(begin											
-								(if (>= (+ (* number_of_processed repeat_xtimes) repeating_counter) img_nb) ;set number_of_processed back to number of images, when we process empty cells  ( fill_empty is set TRUE)								
-									(set! number_of_processed (- (/ img_nb repeat_xtimes) 1))
-								)									
-				  				(set! this_img (aref images (- (- img_nb number_of_processed) 1))) 	;get image in reversed order (image with highest index first)
+							(set! this_img (aref images image_index))
 				  				(gimp-drawable-set-name layer (car (gimp-image-get-name this_img))) ;set layer name same as image name
 								
 								;debug print
-								(display (string-append (string-append "Image (" (number->string number_of_processed)) ") "))
+								(display (string-append (string-append "Image (" (number->string number_of_inserted)) ") "))
 								(print (gimp-image-get-name this_img))
 								
 								;(if (not (= (car (gimp-image-base-type this_img)) 0))	(gimp-convert-rgb this_img)) ; make sure image is in RGB land 
@@ -389,11 +387,13 @@
 				  				)
 				  				(gimp-selection-none this_img)
 								
-								(set! repeating_counter (+ repeating_counter 1))	;increase counter for repeating images
+								(set! number_of_inserted (+ number_of_inserted 1))
 								
-								(if (>= repeating_counter repeat_xtimes)		;if repeating is equel to "repeat_xtimes" increase image index
+								(set! repeating_counter (+ repeating_counter 1))	;increase counter for repeating images								
+								;if repeating is equel to "repeat_xtimes" decrease image index and image index is still > 0 otherwise let index at 0
+								(if (and (>= repeating_counter repeat_xtimes) (> image_index 0))
 									(begin
-										(set! number_of_processed (+ number_of_processed 1))
+										(set! image_index (- image_index 1)) ;decrease index of processed image
 										(set! repeating_counter 0)
 									)
 								)																
