@@ -1,7 +1,7 @@
-; IGLO Images Grid LayOut  1.7
+; IGLO Images Grid LayOut  1.8
 ; Easy way to print multiple photos on single paper
 ; 
-; Copyright (C) 2005-2015 Kamil Svoboda <email: kamil (dot) svoboda (at sign) centrum (dot) cz
+; Copyright (C) 2005-2016 Kamil Svoboda <email: kamil (dot) svoboda (at sign) centrum (dot) cz
 ; http://iglo.svoboda.biz/
 ;
 ; This program is distributed under Apache License 2.0
