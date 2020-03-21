@@ -420,7 +420,7 @@
 
 (script-fu-register
     "script-fu-images-grid-layout"
-    "<Image>/Tools/Images Grid Layout"
+    "Images Grid Layout"
     "Script merges multiple images to another one with grid layout"
     "Kamil Svoboda"
     "2005, Kamil Svoboda"
@@ -447,3 +447,4 @@
     SF-COLOR "_Background (around images)"	'(255 255 255)
     ;SF-DIRNAME "Process all images from directory"   "Select directory"    
 )
+(script-fu-menu-register "script-fu-images-grid-layout" "<Image>/Tools")
